@@ -3,11 +3,9 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { ConfidenceDisplay } from '@/components/ConfidenceDisplay';
 import { HeartModelViewer } from '@/components/HeartModelViewer';
 import { Activity } from 'lucide-react';
-
 const Index = () => {
   const [confidence, setConfidence] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
   const handleImageUpload = async (file: File) => {
     setIsProcessing(true);
     setConfidence(null);
@@ -27,11 +25,8 @@ const Index = () => {
     // 2. Setting up a Python backend API endpoint
     // 3. Using Lovable Cloud edge function with external ML API
   };
-
   const showModel = confidence !== null && confidence > 55;
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -41,7 +36,7 @@ const Index = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">Medical Image Analysis</h1>
-              <p className="text-xs text-muted-foreground">AI-Powered Cardiac Imaging</p>
+              
             </div>
           </div>
         </div>
@@ -64,15 +59,12 @@ const Index = () => {
           </section>
 
           {/* Confidence Display */}
-          {(confidence !== null || isProcessing) && (
-            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {(confidence !== null || isProcessing) && <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <ConfidenceDisplay confidence={confidence} isProcessing={isProcessing} />
-            </section>
-          )}
+            </section>}
 
           {/* 3D Model Viewer */}
-          {showModel && (
-            <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {showModel && <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-foreground mb-2">
                   3D Heart Model
@@ -82,12 +74,10 @@ const Index = () => {
                 </p>
               </div>
               <HeartModelViewer />
-            </section>
-          )}
+            </section>}
 
           {/* Integration Note */}
-          {confidence === null && !isProcessing && (
-            <section className="max-w-2xl mx-auto">
+          {confidence === null && !isProcessing && <section className="max-w-2xl mx-auto">
               <div className="bg-muted/30 rounded-xl p-6 border border-border">
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   🔧 Model Integration Required
@@ -101,12 +91,9 @@ const Index = () => {
                   <li>Use cloud ML services (AWS SageMaker, Google Vertex AI)</li>
                 </ul>
               </div>
-            </section>
-          )}
+            </section>}
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
