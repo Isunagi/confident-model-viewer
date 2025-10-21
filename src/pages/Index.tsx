@@ -51,9 +51,7 @@ const Index = () => {
               <h2 className="text-3xl font-bold text-foreground mb-2">
                 Upload Medical Image
               </h2>
-              <p className="text-muted-foreground">
-                Upload an image for AI-powered analysis with confidence scoring
-              </p>
+              
             </div>
             <ImageUpload onImageUpload={handleImageUpload} isProcessing={isProcessing} />
           </section>
@@ -66,9 +64,7 @@ const Index = () => {
           {/* 3D Model Viewer */}
           {showModel && <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-foreground mb-2">
-                  3D Heart Model
-                </h2>
+                <h2 className="text-3xl font-bold text-foreground mb-2">3D Model</h2>
                 <p className="text-muted-foreground">
                   Interactive visualization based on analysis results
                 </p>
