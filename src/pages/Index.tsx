@@ -3,6 +3,8 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { ConfidenceDisplay } from '@/components/ConfidenceDisplay';
 import { HeartModelViewer } from '@/components/HeartModelViewer';
 import { Activity } from 'lucide-react';
+import { analyzeImageForHeart } from '@/lib/imageAnalysis';
+import { toast } from '@/hooks/use-toast';
 const Index = () => {
   const [confidence, setConfidence] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -10,20 +12,33 @@ const Index = () => {
     setIsProcessing(true);
     setConfidence(null);
 
-    // Simulate AI model processing
-    // In production, this would call your backend API with the PyTorch model
-    setTimeout(() => {
-      // Simulate random confidence between 40-95%
-      const simulatedConfidence = Math.floor(Math.random() * 55) + 40;
-      setConfidence(simulatedConfidence);
+    try {
+      // Use browser-based AI vision model to analyze the image
+      const detectedConfidence = await analyzeImageForHeart(file);
+      setConfidence(detectedConfidence);
+      
+      if (detectedConfidence > 55) {
+        toast({
+          title: "Heart detected!",
+          description: `Confidence: ${detectedConfidence}%`,
+        });
+      } else {
+        toast({
+          title: "Low confidence",
+          description: "Image may not contain a clear heart structure",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error processing image:', error);
+      toast({
+        title: "Processing error",
+        description: "Failed to analyze image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsProcessing(false);
-    }, 2500);
-
-    // TODO: Implement actual model inference
-    // This requires either:
-    // 1. Converting my_model.pt to ONNX for browser use
-    // 2. Setting up a Python backend API endpoint
-    // 3. Using Lovable Cloud edge function with external ML API
+    }
   };
   const showModel = confidence !== null && confidence > 55;
   return <div className="min-h-screen bg-background">
