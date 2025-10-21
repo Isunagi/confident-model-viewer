@@ -1,1 +1,4 @@
 project_id = "tkyffjsabmltyjhckkqc"
+
+[functions.analyze-heart-image]
+verify_jwt = false

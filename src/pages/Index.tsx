@@ -3,27 +3,67 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { ConfidenceDisplay } from '@/components/ConfidenceDisplay';
 import { HeartModelViewer } from '@/components/HeartModelViewer';
 import { Activity } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+
 const Index = () => {
   const [confidence, setConfidence] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
+
   const handleImageUpload = async (file: File) => {
     setIsProcessing(true);
     setConfidence(null);
 
-    // Simulate AI model processing
-    // In production, this would call your backend API with the PyTorch model
-    setTimeout(() => {
-      // Simulate random confidence between 40-95%
-      const simulatedConfidence = Math.floor(Math.random() * 55) + 40;
-      setConfidence(simulatedConfidence);
-      setIsProcessing(false);
-    }, 2500);
+    try {
+      // Convert image to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      const imageData = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+      });
 
-    // TODO: Implement actual model inference
-    // This requires either:
-    // 1. Converting my_model.pt to ONNX for browser use
-    // 2. Setting up a Python backend API endpoint
-    // 3. Using Lovable Cloud edge function with external ML API
+      console.log('Sending image to AI for analysis...');
+
+      // Call edge function for heart detection
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-heart-image`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageData }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to analyze image');
+      }
+
+      const data = await response.json();
+      console.log('Analysis result:', data);
+
+      setConfidence(data.confidence);
+      
+      toast({
+        title: "Analysis Complete",
+        description: `Heart detection confidence: ${data.confidence}%`,
+      });
+
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      toast({
+        title: "Analysis Failed",
+        description: error instanceof Error ? error.message : 'Failed to analyze image',
+        variant: "destructive",
+      });
+      setConfidence(null);
+    } finally {
+      setIsProcessing(false);
+    }
   };
   const showModel = confidence !== null && confidence > 55;
   return <div className="min-h-screen bg-background">
@@ -72,19 +112,19 @@ const Index = () => {
               <HeartModelViewer />
             </section>}
 
-          {/* Integration Note */}
+          {/* Info Note */}
           {confidence === null && !isProcessing && <section className="max-w-2xl mx-auto">
               <div className="bg-muted/30 rounded-xl p-6 border border-border">
                 <h3 className="text-sm font-semibold text-foreground mb-2">
-                  🔧 Model Integration Required
+                  🤖 AI-Powered Heart Detection
                 </h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  The PyTorch model (my_model.pt) needs backend integration. Options:
+                  Upload a medical image to detect if it contains a human heart using advanced AI vision analysis.
                 </p>
                 <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Convert to ONNX format for browser-based inference</li>
-                  <li>Set up Python API endpoint with PyTorch</li>
-                  <li>Use cloud ML services (AWS SageMaker, Google Vertex AI)</li>
+                  <li>Powered by Gemini 2.5 Flash vision model</li>
+                  <li>Analyzes anatomical hearts and medical imaging</li>
+                  <li>Shows 3D model for confidence above 55%</li>
                 </ul>
               </div>
             </section>}
